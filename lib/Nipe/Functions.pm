@@ -11,6 +11,7 @@ sub help {
 		\r\tCommand       Description
 		\r\t-------       -----------
 		\r\tinstall       Install dependencies
+		\r\t  -f          Overwrite Tor config file in /etc/tor/torrc
 		\r\tstart         Start routing
 		\r\tstop          Stop routing
 		\r\trestart       Restart the Nipe process
@@ -22,6 +23,8 @@ sub help {
 }
 
 sub install {
+	shift; # ignore class name
+	my $force_cfg = shift;
 	my $operationalSystem = Nipe::Device -> getSystem();
 
 	if ($operationalSystem eq "debian") {
@@ -40,8 +43,16 @@ sub install {
 		system ("sudo pacman -S tor iptables");
 	}
 
-	system ("sudo cp .configs/$operationalSystem-torrc /etc/tor/torrc");
-	system ("sudo chmod 644 /etc/tor/torrc");
+	if (defined($force_cfg)) {
+		print "[.] Overwriting system Tor's config file\n";
+		print "[.]   .configs/$operationalSystem-torrc -> /etc/tor/torrc\n";
+		system ("sudo cp .configs/$operationalSystem-torrc /etc/tor/torrc");
+		system ("sudo chmod 644 /etc/tor/torrc");
+	}
+
+	else {
+		print "[.] Refer to our custom Tor config files in project home\n";
+	}
 
 	if (-e "/etc/init.d/tor") {
 		system ("sudo /etc/init.d/tor stop > /dev/null");
