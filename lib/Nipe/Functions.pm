@@ -12,6 +12,7 @@ sub help {
 		\r\t-------       -----------
 		\r\tinstall       Install dependencies
 		\r\t  -f          Overwrite Tor config file in /etc/tor/torrc
+		\r\t  -c <file>   Specify a custom location to install Tor's config file
 		\r\tstart         Start routing
 		\r\tstop          Stop routing
 		\r\trestart       Restart the Nipe process
@@ -24,7 +25,8 @@ sub help {
 
 sub install {
 	shift; # ignore class name
-	my $force_cfg = shift;
+	my ($force_cfg, $custom_cfg) = @_;
+	my $tor_cfg = "/etc/tor/torrc";
 	my $operationalSystem = Nipe::Device -> getSystem();
 
 	if ($operationalSystem eq "debian") {
@@ -44,10 +46,18 @@ sub install {
 	}
 
 	if (defined($force_cfg)) {
-		print "[.] Overwriting system Tor's config file\n";
-		print "[.]   .configs/$operationalSystem-torrc -> /etc/tor/torrc\n";
-		system ("sudo cp .configs/$operationalSystem-torrc /etc/tor/torrc");
-		system ("sudo chmod 644 /etc/tor/torrc");
+		if (defined($custom_cfg)) {
+			$tor_cfg = $custom_cfg;
+			print "[.] Writing Nipe's custom Tor config file\n";
+		}
+
+		else {
+			print "[.] Overwriting system Tor's config file\n";
+		}
+
+		print "[.]   .configs/$operationalSystem-torrc -> $tor_cfg\n";
+		system ("sudo cp .configs/$operationalSystem-torrc $tor_cfg");
+		system ("sudo chmod 644 $tor_cfg");
 	}
 
 	else {

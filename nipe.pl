@@ -27,12 +27,24 @@ sub main {
 		}
 		case "install" {
 			my $force_cfg = undef;
+			my $custom_cfg = undef;
 
 			if ($ARGV[1] eq "-f") {
 				$force_cfg = 1;
 			}
 
-			Nipe::Functions -> install($force_cfg);
+			elsif ($ARGV[1] eq "-c") {
+				if (length($ARGV[2]) <= 0) {
+					print "[!] Invalid argument\n";
+					Nipe::Functions -> help();
+					exit;
+				}
+
+				$force_cfg = 1;
+				$custom_cfg = $ARGV[2];
+			}
+
+			Nipe::Functions -> install($force_cfg, $custom_cfg);
 		}
 
 		Nipe::Functions -> help();
